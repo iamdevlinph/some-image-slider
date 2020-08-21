@@ -1,0 +1,310 @@
+<style>
+  body {
+    margin: 0;
+  }
+
+  .screen-holder {
+    position: absolute;
+    width: 100%;
+    text-align: center;
+    top: 37px;
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  .slides {
+    position: absolute;
+    width: 100%;
+    text-align: center;
+    top: 37px;
+    z-index: 1;
+    justify-content: center;
+    display: flex;
+  }
+
+  .slide-text {
+    width: 100%;
+    position: absolute;
+    left: 0;
+    margin-top: 20px;
+  }
+
+  .slide-text div {
+    padding: 0 10%;
+  }
+
+  /**
+    adjusted to accomodate image since image is not completely center for some reason
+  */
+  .slides #center {
+    min-height: 253px;
+  }
+
+  .slides #center img {
+    height: 253px;
+    margin-left: 31px;
+    margin-right: 26px;
+    margin-top: 18px;
+    width: 410px;
+  }
+
+  .slides #center .slide-text {
+    display: block;
+  }
+
+  .slides #left img,
+  .slides #right img {
+    height: 150px;
+    margin-top: 65px;
+    width: 250px;
+    opacity: 0.5;
+    cursor: pointer;
+  }
+
+  .slides #left .slide-text,
+  .slides #right .slide-text {
+    display: none;
+  }
+
+  /* holder all slides */
+  .all-slides {
+    visibility: hidden;
+  }
+
+  .all-slides>div {
+    height: 150px;
+    width: 250px;
+  }
+
+  .all-slides>div img {
+    max-width: 100%;
+    max-height: 100%;
+  }
+
+  /* dot pagination */
+  .dot-pagination {
+    position: absolute;
+    top: 460px;
+    text-align: center;
+    width: 100vw;
+  }
+
+  .dot {
+    height: 10px;
+    width: 10px;
+    background-color: #ececec;
+    border-radius: 50%;
+    display: inline-block;
+    cursor: pointer;
+  }
+
+  .dot.active,
+  .dot:hover {
+    background-color: #bbb;
+  }
+
+
+
+  @media only screen and (max-width: 980px) {
+    .screen-holder img {
+      width: 300px;
+      height: auto;
+      margin-top: 12px;
+    }
+
+    .slides #center img {
+      height: 147px;
+      width: 234px;
+      margin-top: 19px;
+    }
+
+    .dot-pagination {
+      top: 355px;
+    }
+
+    .slides #left img,
+    .slides #right img {
+      height: 90px;
+      margin-top: 45px;
+      width: 150px;
+    }
+
+    .slide-text div {
+      padding: 0;
+    }
+  }
+
+  @media only screen and (max-width: 640px) {
+    .screen-holder {
+      display: none;
+    }
+
+    .slides #center img {
+      height: auto;
+      width: 80%;
+      margin: 0;
+    }
+
+    .slides #left,
+    .slides #right {
+      display: none;
+    }
+
+    .dot-pagination {
+      /* top: 400px; */
+      margin-top: 20px;
+      position: static;
+    }
+
+    .dot {
+      margin: 0 3px;
+    }
+
+    .slide-text {
+      position: relative;
+    }
+
+    .slides {
+      position: static;
+    }
+  }
+</style>
+
+<body>
+
+  <head>
+    <meta content="width=device-width, initial-scale=1" name="viewport" />
+  </head>
+  <div class="screen-holder">
+    <div>
+      <img src="./images/laptop-screen.png" alt="" height="300">
+    </div>
+  </div>
+  <div class="slides" id="slides-container">
+    <div id="left" onclick="goToSlide('prev')"></div>
+    <div id="center"></div>
+    <div id="right" onclick="goToSlide('next')"></div>
+  </div>
+  <div class="dot-pagination">
+    <span class="dot active" onclick="goToSlide(0)"></span>
+    <span class="dot" onclick="goToSlide(1)"></span>
+    <span class="dot" onclick="goToSlide(2)"></span>
+    <span class="dot" onclick="goToSlide(3)"></span>
+  </div>
+
+  <div class="all-slides" id="all-slides">
+    <div>
+      <img src="https://via.placeholder.com/1920x1080.png?text=1" alt="">
+      <div class="slide-text">
+        <h1>Dashboard</h1>
+        <div>All your data in one place, instantly searchable. View real-time and historical temperature data, filter by
+          date, locations and sensors, gain insights into performance, and view past alerts.</div>
+      </div>
+    </div>
+    <div>
+      <img src="https://via.placeholder.com/1920x1080.png?text=2" alt="">
+      <div class="slide-text">
+        <h1>Sensors</h1>
+        <div>Make sure you know what’s happening 24/7. Add, update, and remove locations, sensors, and alerts.</div>
+      </div>
+    </div>
+    <div>
+      <img src="https://via.placeholder.com/1920x1080.png?text=3" alt="">
+      <div class="slide-text">
+        <h1>Users</h1>
+        <div>Getting started is easy! Invite, update, and remove users. </div>
+      </div>
+    </div>
+    <div>
+      <img src="https://via.placeholder.com/1920x1080.png?text=4" alt="">
+      <div class="slide-text">
+        <h1>Reports</h1>
+        <div>Love data? Easily create one-time or recurring reports to learn more about temperature, humidity or alert
+          patterns, or obtain a full data export. </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/zingtouch.min.js"></script>
+</body>
+
+<script>
+  var images = document.getElementById('all-slides').children;
+  var currentIndex = 0;
+  var prevIndex = images.length - 1;
+  var nextIndex = currentIndex + 1;
+  var defaultIndexes = {
+    prev: prevIndex,
+    current: currentIndex,
+    next: nextIndex,
+  }
+
+  function populateSlides(images, indexes, isInit = false) {
+    populateLeftSlide(images, indexes.prev);
+    populateCenterSlide(images, indexes.current);
+    populateRightSlide(images, indexes.next);
+  }
+
+  function populateLeftSlide(images, index) {
+    document.getElementById('left').innerHTML = images[index].innerHTML;
+  }
+
+  function populateCenterSlide(images, index) {
+    document.getElementById('center').innerHTML = images[index].innerHTML;
+  }
+
+  function populateRightSlide(images, index) {
+    document.getElementById('right').innerHTML = images[index].innerHTML;
+  }
+
+  populateSlides(images, defaultIndexes, true);
+
+  function goToSlide(index) {
+    var prevSelectedIndex = currentIndex;
+    if (typeof index === 'string') {
+      switch (index) {
+        case 'prev':
+          currentIndex = getPrevIndex(currentIndex);
+          break;
+        case 'next':
+          currentIndex = getNextIndex(currentIndex);
+          break;
+      }
+    } else {
+      currentIndex = index;
+    }
+
+    document.getElementsByClassName('dot')[prevSelectedIndex].classList.remove('active');
+    document.getElementsByClassName('dot')[currentIndex].classList.add('active');
+
+    prevIndex = getPrevIndex(currentIndex);
+    nextIndex = getNextIndex(currentIndex);
+
+    const indexes = {
+      prev: prevIndex,
+      current: currentIndex,
+      next: nextIndex,
+    }
+    populateSlides(images, indexes)
+  }
+
+  function getPrevIndex(currentIndex) {
+    return currentIndex === 0 ? images.length - 1 : currentIndex - 1;
+  }
+
+  function getNextIndex(currentIndex) {
+    return currentIndex === images.length - 1 ? 0 : currentIndex + 1;
+  }
+
+  // zingtouch for gestures
+  var containerElement = document.getElementById('slides-container');
+  var activeRegion = ZingTouch.Region(containerElement);
+  activeRegion.bind(containerElement, 'swipe', function (event) {
+    var direction = event.detail.data[0].currentDirection;
+    if (direction > 90 && direction < 270) {
+      goToSlide('next')
+    } else {
+      goToSlide('prev')
+    }
+  });
+</script>
